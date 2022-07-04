@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # Python 3
 # LinkFinder
 # By Gerben_Javado
@@ -61,6 +61,13 @@ regex_str = r"""
          action|html|js|txt|xml)        # . + extension
     (?:[\?|#][^"|']{0,}|))              # ? or # mark with parameters
 
+    |
+
+    (access_key|access_token|accessKey|accessToken|api_key|api_secret|apikey|app_id|app_key|app_secret|application_id|asws_secret_token|aws_access|aws_config|aws_key|aws_secret|aws_secret_access_key|aws_secret_key|aws_token|bucket_password|client_secret|connectionstring|consumer_secret|credentials|db_password|db_server|db_username|dbpasswd|dbpassword|dbuser|django_password|email_host_password|facebook_app_secret|facebook_secret|fb_app_secret|fb_secret|google_id|google_oauth|google_oauth_client_id|google_oauth_client_secret|google_oauth_secret|google_secret|google_server_key|gsecr|heroku_api_key|heroku_key|heroku_oauth|heroku_oauth_secret|heroku_oauth_token|heroku_secret|heroku_secret_token|jwt_secret|jwt_token|jwt_secret_token|keyPassword|mailgun_key|mailgun_secret|mysql_password|oauth_key|oauth_token|oauth2_secret|password|paypal_identity_token|paypal_sandbox|paypal_secret|paypal_token|postgres_password|private|private_key|redis_password|root_password|sa_password|secret|secret_access_key|secret_bearer|secret_key|secret_token|secretKey|security_credentials|send_keys|sf_username|slack_channel|slack_key|slack_secret|slack_token|slack_url|slack_webhook|slack_webhook_url|square_access_token|square_apikey|square_app|square_app_id|square_appid|square_secret|square_token|squareSecret|squareToken|ssh2_auth_password|sshkey|storePassword|strip_key|strip_secret|strip_secret_token|strip_token|stripe_key|stripe_secret|stripe_secret_token|stripe_token|stripSecret|stripToken|twitter_api_secret|twitter_consumer_key|twitter_consumer_secret|twitter_key|twitter_secret|twitter_token|twitterKey|twitterSecret|wordpress_password)
+  
+    |
+
+    (([^A-Z0-9]|^)(AKIA|A3T|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA)[A-Z0-9]{12,}) # Aws keys
   )
 
   (?:"|')                               # End newline delimiter
@@ -232,13 +239,18 @@ def parser_file(content, regex_str, mode=1, more_regex=None, no_dup=1):
 
     return filtered_items
 
-def cli_output(endpoints):
+def cli_output(endpoints, url = None):
     '''
     Output to CLI
     '''
+    if url is not None:
+        print(f'[+] Current URL: {url}')
+    
     for endpoint in endpoints:
         print(html.escape(endpoint["link"]).encode(
             'ascii', 'ignore').decode('utf8'))
+    
+    print('')
 
 def html_save(html):
     '''
@@ -344,7 +356,6 @@ if __name__ == "__main__":
                 if endpoint is False:
                     continue
                 print("Running against: " + endpoint)
-                print("")
                 try:
                     file = send_request(endpoint)
                     new_endpoints = parser_file(file, regex_str, mode, args.regex)
@@ -375,7 +386,7 @@ if __name__ == "__main__":
                     continue
 
         if args.output == 'cli':
-            cli_output(endpoints)
+            cli_output(endpoints, url)
         else:
             output += '''
                 <h1>File: <a href="%s" target="_blank" rel="nofollow noopener noreferrer">%s</a></h1>
